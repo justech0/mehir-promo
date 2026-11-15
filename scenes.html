@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,800;0,9..144,900;1,9..144,500;1,9..144,700&family=Manrope:wght@500;600;700;800&display=block" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --night: #0e1709; --cream: #f3ead8; --gold: #c8a165; --gold2: #e4c48a;
+    --serif: "Fraunces", Georgia, serif; --sans: "Manrope", Arial, sans-serif; }
+  html, body { width: 1080px; height: 1920px; background: var(--night); overflow: hidden; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--night); font-family: var(--sans); color: var(--cream); }
+  .scene { position: absolute; inset: 0; opacity: 0; overflow: hidden; }
+  .full { position: absolute; inset: 0; width: 100%; height: 100%; }
+  canvas { display: block; }
+  .it { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--gold2); }
+  .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .wm { display: block; filter: drop-shadow(0 8px 40px rgba(0,0,0,.55)); }
+
+  /* S1 */
+  #s1 .dim { position: absolute; inset: 0; background: radial-gradient(70% 38% at 50% 50%, rgba(10,16,6,.72) 0%, rgba(10,16,6,.25) 60%, rgba(10,16,6,0) 100%); }
+  #s1 .wm { width: 820px; }
+  #s1 .kap { font: 500 italic 150px/1 var(--serif); color: var(--gold2); margin-top: 18px; text-shadow: 0 6px 40px rgba(0,0,0,.6); }
+
+  /* S2 */
+  #s2 { background: radial-gradient(120% 70% at 50% 40%, #22351a 0%, var(--night) 70%); }
+  #s2 .persp { position: absolute; inset: 0; perspective: 1600px; perspective-origin: 50% 40%; }
+  #wall { position: absolute; left: 50%; top: 50%; width: 1320px; height: 2290px; margin-left: -660px; margin-top: -1145px; transform-style: preserve-3d; display: grid; grid-template-columns: repeat(3, 400px); gap: 60px; }
+  .card { width: 400px; height: 710px; border-radius: 34px; overflow: hidden; background: #000; box-shadow: 0 50px 90px rgba(0,0,0,.55), 0 0 0 2px rgba(228,196,138,.18); }
+  .card canvas { width: 100%; height: 100%; }
+  #s2 .dim { position: absolute; inset: 0; background: radial-gradient(80% 26% at 50% 50%, rgba(10,16,6,.9) 0%, rgba(10,16,6,.55) 55%, rgba(10,16,6,0) 100%); }
+  #s2 .t1 { font: 800 120px/1 var(--serif); }
+  #s2 .t2 { font: 500 italic 132px/1.05 var(--serif); color: var(--gold2); margin-top: 6px; }
+
+  /* S3 phone */
+  #s3 { background: radial-gradient(90% 60% at 50% 66%, #2a4120 0%, var(--night) 72%); }
+  #s3 .head { position: absolute; top: 150px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; }
+  #s3 .wm { width: 460px; }
+  #s3 .sub { font: 500 italic 104px/1 var(--serif); color: var(--gold2); margin-top: 8px; }
+  #s3 .persp { position: absolute; inset: 0; perspective: 2000px; perspective-origin: 50% 60%; }
+  #phone { position: absolute; left: 50%; top: 640px; width: 610px; height: 1240px; margin-left: -305px; transform-style: preserve-3d; }
+  #phone .body { position: absolute; inset: 0; border-radius: 86px; background: #0b0f08; box-shadow: 0 0 0 3px #3a4a2e, 0 0 0 10px #10160c, 60px 90px 140px rgba(0,0,0,.65); }
+  #phone .screen { position: absolute; inset: 18px; border-radius: 70px; overflow: hidden; background: #f6f2ea; color: #1b2414; }
+  #phone .island { position: absolute; top: 34px; left: 50%; width: 170px; height: 46px; margin-left: -85px; background: #000; border-radius: 30px; z-index: 5; }
+  #phone .glare { position: absolute; inset: 18px; border-radius: 70px; background: linear-gradient(115deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.16) 45%, rgba(255,255,255,0) 60%); background-size: 300% 100%; }
+  .app { position: absolute; left: 0; right: 0; top: 0; }
+  .app .banner { position: relative; height: 380px; overflow: hidden; }
+  .app .banner canvas { position: absolute; left: 50%; top: 0; height: 100%; transform: translateX(-50%); }
+  .app .banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(14,23,9,.55)); }
+  .app .logo { position: absolute; left: 34px; top: 300px; width: 150px; height: 150px; border-radius: 50%; z-index: 3; box-shadow: 0 10px 30px rgba(0,0,0,.35); background: #fff; }
+  .app .info { padding: 92px 34px 10px; }
+  .app .name { font: 800 44px/1.05 var(--serif); color: #16230f; }
+  .app .subl { font: 600 22px var(--sans); color: #66705c; margin-top: 8px; }
+  .app .meta { display: flex; gap: 26px; margin-top: 18px; font: 700 22px var(--sans); color: #2f4423; }
+  .app .meta b { color: #c47a12; }
+  .app .sec { font: 800 26px var(--sans); padding: 26px 34px 10px; color: #16230f; }
+  .row { display: flex; align-items: center; gap: 22px; padding: 18px 34px; border-top: 1px solid #e5ddcd; }
+  .row canvas { width: 128px; height: 128px; border-radius: 22px; flex: none; }
+  .row .t { flex: 1; }
+  .row .t b { display: block; font: 800 28px var(--sans); color: #16230f; }
+  .row .t span { display: block; font: 500 19px/1.35 var(--sans); color: #77806c; margin-top: 6px; }
+  .row .add { width: 64px; height: 64px; border-radius: 50%; background: #1f3016; color: #f3ead8; flex: none; display: grid; place-items: center; font: 700 40px/1 var(--sans); position: relative; }
+  .ripple { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px; border-radius: 50%; border: 4px solid var(--gold); opacity: 0; }
+  .cartbar { position: absolute; left: 24px; right: 24px; bottom: 34px; height: 110px; border-radius: 34px; background: #1f3016; color: #f3ead8; display: flex; align-items: center; justify-content: space-between; padding: 0 34px; font: 800 28px var(--sans); z-index: 4; }
+  .cartbar em { font-style: normal; color: var(--gold2); }
+  .finger { position: absolute; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.55), rgba(255,255,255,0) 70%); z-index: 6; opacity: 0; }
+
+  /* S4 logo prism */
+  #s4 { background: radial-gradient(85% 45% at 50% 50%, #2c4321 0%, var(--night) 75%); }
+  #s4 .simdi { position: absolute; top: 420px; left: 0; right: 0; text-align: center; font: 500 italic 170px/1 var(--serif); color: var(--gold2); }
+  #s4 .persp { position: absolute; inset: 0; perspective: 1900px; perspective-origin: 50% 46%; }
+  #prism { position: absolute; left: 50%; top: 870px; width: 900px; height: 360px; margin-left: -450px; transform-style: preserve-3d; }
+  .face { position: absolute; inset: 0; border-radius: 40px; display: grid; place-items: center; overflow: hidden; backface-visibility: hidden;
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,.08); }
+  .face img { display: block; }
+  .face .sweep { position: absolute; inset: 0; background: linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.35) 50%, rgba(255,255,255,0) 62%); background-size: 320% 100%; background-position: 140% 0; }
+  .f-ys { background: #fa0050; } .f-ys img { width: 640px; filter: brightness(0) invert(1); }
+  .f-tg { background: #ffffff; } .f-tg img { width: 520px; }
+  .f-mg { background: #ffffff; } .f-mg img { width: 560px; }
+  .f-gt { background: #5d3ebc; } .f-gt img { width: 430px; }
+  #shadow { position: absolute; left: 50%; top: 1300px; width: 820px; height: 90px; margin-left: -410px; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,.6), rgba(0,0,0,0)); }
+  #roll { position: absolute; left: 0; right: 0; top: 1420px; height: 140px; perspective: 1200px; }
+  #rollIn { position: absolute; left: 50%; top: 0; width: 1000px; height: 140px; margin-left: -500px; transform-style: preserve-3d; }
+  #rollIn div { position: absolute; inset: 0; display: grid; place-items: center; font: 800 96px/1 var(--serif); color: var(--cream); backface-visibility: hidden; }
+
+  /* S5 closing */
+  #s5 { background: var(--night); }
+  #s5 .shot { position: absolute; left: 0; top: 0; width: 1080px; height: 1350px; }
+  #s5 .shot::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,23,9,.35) 0%, rgba(14,23,9,0) 25%, rgba(14,23,9,.2) 50%, var(--night) 96%); }
+  #s5 .shot canvas { width: 100%; height: 100%; }
+  #s5 .block { position: absolute; left: 0; right: 0; top: 960px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  #s5 .l1 { font: 800 118px/1 var(--serif); text-shadow: 0 6px 40px rgba(0,0,0,.6); }
+  #s5 .l2 { font: 500 italic 132px/1.05 var(--serif); color: var(--gold2); margin-top: 4px; }
+  #s5 .logos { display: grid; grid-template-columns: repeat(4, 224px); gap: 14px; margin-top: 70px; }
+  #s5 .logos div { height: 104px; border-radius: 24px; display: grid; place-items: center; }
+  #s5 .logos img { display: block; }
+  #s5 .tel { margin-top: 56px; font: 800 58px var(--sans); letter-spacing: .02em; }
+  #s5 .addr { margin-top: 18px; font: 600 32px/1.4 var(--sans); color: var(--gold2); }
+
+  #embers { position: absolute; inset: 0; pointer-events: none; }
+  #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 90% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%); }
+  #grain { position: absolute; inset: 0; pointer-events: none; opacity: .07; mix-blend-mode: overlay; }
+  #flash { position: absolute; inset: 0; background: #ffd9a8; opacity: 0; pointer-events: none; mix-blend-mode: screen; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <section class="scene" id="s1">
+    <canvas class="full" id="c-fire" width="1080" height="1920"></canvas>
+    <div class="dim"></div>
+    <div class="center"><img class="wm" id="s1wm" src="wordmark.png"/><div class="kap" id="s1k">kapında</div></div>
+  </section>
+
+  <section class="scene" id="s2">
+    <div class="persp"><div id="wall"></div></div>
+    <div class="dim"></div>
+    <div class="center"><div class="t1" id="s2a">Közün</div><div class="t2" id="s2b">en lezzetli hali</div></div>
+  </section>
+
+  <section class="scene" id="s3">
+    <div class="head"><img class="wm" id="s3wm" src="wordmark.png"/><div class="sub" id="s3s">bir tık uzağında</div></div>
+    <div class="persp">
+      <div id="phone">
+        <div class="body"></div>
+        <div class="screen">
+          <div class="island"></div>
+          <div class="app" id="app">
+            <div class="banner"><canvas id="c-teras" width="676" height="380"></canvas></div>
+            <img class="logo" src="logo.png"/>
+            <div class="info">
+              <div class="name">Mehir Ocakbaşı</div>
+              <div class="subl">Kebap & Türk Mutfağı</div>
+              <div class="meta"><span><b>★</b> 5,0</span><span>Ücretsiz teslimat</span></div>
+            </div>
+            <div class="sec">Kebaplar & Izgaralar</div>
+            <div class="row"><canvas id="t1" width="256" height="256"></canvas><div class="t"><b>Ciğer Şiş</b><span>Közde, Mehir ve salatalarla</span></div><div class="add">+</div></div>
+            <div class="row"><canvas id="t2" width="256" height="256"></canvas><div class="t"><b>Kuzu Pirzola</b><span>Közde, Mehir ve salatalarla</span></div><div class="add" id="addbtn">+<div class="ripple" id="ripple"></div></div></div>
+            <div class="row"><canvas id="t3" width="256" height="256"></canvas><div class="t"><b>Kuzu Küşleme</b><span>Közde, Mehir ve salatalarla</span></div><div class="add">+</div></div>
+            <div class="row"><canvas id="t4" width="256" height="256"></canvas><div class="t"><b>Et Sac Tava</b><span>Kuzu eti, Mehir ve salatalarla</span></div><div class="add">+</div></div>
+          </div>
+          <div class="finger" id="finger"></div>
+          <div class="cartbar" id="cartbar"><span>Sepete eklendi</span><em>1 ürün →</em></div>
+        </div>
+        <div class="glare" id="glare"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" id="s4">
+    <div class="simdi" id="s4a">Şimdi</div>
+    <div id="shadow"></div>
+    <div class="persp">
+      <div id="prism">
+        <div class="face f-ys"><img src="logos/ys.svg"/><div class="sweep"></div></div>
+        <div class="face f-tg"><img src="logos/tgo.svg"/><div class="sweep"></div></div>
+        <div class="face f-mg"><img src="logos/mg.svg"/><div class="sweep"></div></div>
+        <div class="face f-gt"><img src="logos/getir.svg"/><div class="sweep"></div></div>
+      </div>
+    </div>
+    <div id="roll"><div id="rollIn">
+      <div>Yemeksepeti’ndeyiz</div><div>Trendyol Go’dayız</div><div>Migros Yemek’teyiz</div><div>Getir’deyiz</div>
+    </div></div>
+  </section>
+
+  <section class="scene" id="s5">
+    <div class="shot"><canvas id="c-sign" width="1080" height="1350"></canvas></div>
+    <div class="block">
+      <div class="l1" id="s5a">Köz bizden</div>
+      <div class="l2" id="s5b">sofra senden</div>
+      <div class="logos" id="s5logos">
+        <div style="background:#fa0050"><img src="logos/ys.svg" style="width:180px;filter:brightness(0) invert(1)"/></div>
+        <div style="background:#fff"><img src="logos/tgo.svg" style="width:150px"/></div>
+        <div style="background:#fff"><img src="logos/mg.svg" style="width:160px"/></div>
+        <div style="background:#5d3ebc"><img src="logos/getir.svg" style="width:120px"/></div>
+      </div>
+      <div class="tel" id="s5tel">+90 533 316 98 87</div>
+      <div class="addr" id="s5addr">Belde Mahallesi, Nirvana Plaza Altı<br/>Merkez, Batman</div>
+    </div>
+  </section>
+
+  <canvas id="embers" width="1080" height="1920"></canvas>
+  <div id="vignette"></div>
+  <canvas id="grain" width="540" height="960" style="width:1080px;height:1920px"></canvas>
+  <div id="flash"></div>
+</div>
+
+<script>
+const FPS = 30;
+window.VIDEO_DURATION = 15;
+// 100 BPM grid (0.6 s per beat) so music added later can sit on the cuts.
+const CUT = { s2: 2.4, s3: 4.8, s4: 7.2, s5: 12.15 };
+const FLIPS = [8.75, 9.85, 10.95];            // prism turns to the next platform
+
+const CLIPS = { fire:30, ciger:70, pirzola:102, pirzolap:90, beyti:102, kusleme:102, sactava:102, vitrin:90, teras:90, sign:78 };
+const IMG = {}, loads = [];
+for (const [k, n] of Object.entries(CLIPS)) {
+  IMG[k] = [];
+  for (let i = 1; i <= n; i++) { const im = new Image(); im.src = `clips/${k}/${String(i).padStart(3, "0")}.jpg`; IMG[k].push(im); loads.push(im.decode().catch(() => {})); }
+}
+document.querySelectorAll("img").forEach(im => loads.push(im.decode().catch(() => {})));
+
+function frameOf(k, t) { const n = CLIPS[k], f = Math.floor(t * FPS), p = 2 * (n - 1); let m = ((f % p) + p) % p; if (m >= n) m = p - m; return IMG[k][m]; }
+function cover(ctx, im, w, h, zoom = 1, px = .5, py = .5) { const s = Math.max(w / im.naturalWidth, h / im.naturalHeight) * zoom, dw = im.naturalWidth * s, dh = im.naturalHeight * s; ctx.drawImage(im, (w - dw) * px, (h - dh) * py, dw, dh); }
+const drawClip = (cv, k, t, z = 1, px = .5, py = .5) => cover(cv.getContext("2d"), frameOf(k, t), cv.width, cv.height, z, px, py);
+
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, p) => a + (b - a) * p;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = p => 1 - Math.pow(1 - p, 4);
+const eExpo = p => p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+const eIO = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const eBack = (p, c1 = 1.5) => { const c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+const eBounce = p => { const n = 7.5625, d = 2.75; if (p < 1 / d) return n * p * p; if (p < 2 / d) return n * (p -= 1.5 / d) * p + .75; if (p < 2.5 / d) return n * (p -= 2.25 / d) * p + .9375; return n * (p -= 2.625 / d) * p + .984375; };
+const $ = id => document.getElementById(id);
+function css(el, o) { for (const k in o) el.style[k] = o[k]; }
+function rise(el, t, t0, dur = .5, dy = 60) { const p = eOut(prog(t, t0, t0 + dur)); css(el, { opacity: p, transform: `translateY(${(1 - p) * dy}px)`, filter: `blur(${(1 - p) * 10}px)` }); }
+function slam(el, t, t0, dur = .45, from = 1.35) { const p = eExpo(prog(t, t0, t0 + dur)); css(el, { opacity: prog(t, t0, t0 + .12), transform: `scale(${lerp(from, 1, p)})`, filter: `blur(${(1 - p) * 14}px)` }); }
+function sceneAlpha(t, a, b, fin = .15, fout = .15) { if (t < a - fin || t > b + fout) return 0; return Math.min(prog(t, a - fin, a + .001), 1 - prog(t, b, b + fout)); }
+
+const WALL = ["ciger","pirzola","beyti","kusleme","sactava","vitrin","pirzolap","fire","ciger"];
+const wallCards = WALL.map((k, i) => { const d = document.createElement("div"); d.className = "card"; const c = document.createElement("canvas"); c.width = 400; c.height = 710; d.appendChild(c); $("wall").appendChild(d); return { d, c, k, off: i * .37 }; });
+
+// prism faces sit around the X axis; turning by -90° brings the face from above to the front
+const faces = [...document.querySelectorAll(".face")], words = [...document.querySelectorAll("#rollIn div")];
+faces.forEach((f, i) => f.style.transform = `rotateX(${90 * i}deg) translateZ(180px)`);
+words.forEach((w, i) => w.style.transform = `rotateX(${90 * i}deg) translateZ(70px)`);
+function prismTurn(t) {                       // continuous face index 0..3 with overshoot
+  let k = 0; FLIPS.forEach(f => { k += eBack(prog(t, f, f + .42), 2.2); }); return k;
+}
+
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const EMB = Array.from({ length: 70 }, () => ({ x: rnd() * 1080, y: rnd() * 1920, s: 1.5 + rnd() * 4, v: 90 + rnd() * 220, w: rnd() * 6.28, a: .35 + rnd() * .65 }));
+function drawEmbers(t, amount) {
+  const ctx = $("embers").getContext("2d"); ctx.clearRect(0, 0, 1080, 1920); if (amount <= 0) return;
+  for (const e of EMB) {
+    const y = ((e.y - t * e.v) % 1920 + 1920) % 1920, x = e.x + Math.sin(t * 1.3 + e.w) * 26;
+    ctx.globalAlpha = e.a * amount * Math.sin((y / 1920) * Math.PI);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, e.s * 3); g.addColorStop(0, "#ffd08a"); g.addColorStop(.4, "#ff7a2b"); g.addColorStop(1, "rgba(255,90,20,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, e.s * 3, 0, 6.29); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+function drawGrain(t) {
+  const ctx = $("grain").getContext("2d"), id = ctx.createImageData(540, 960);
+  let s = (Math.floor(t * FPS) * 9301 + 49297) % 233280;
+  for (let i = 0; i < id.data.length; i += 4) { s = (s * 9301 + 49297) % 233280; const v = (s / 233280) * 255; id.data[i] = id.data[i+1] = id.data[i+2] = v; id.data[i+3] = 255; }
+  ctx.putImageData(id, 0, 0);
+}
+
+window.renderAt = function (t) {
+  // S1 hook
+  const a1 = sceneAlpha(t, 0, CUT.s2 - .1, .001, .15);
+  css($("s1"), { opacity: a1 });
+  if (a1 > 0) { drawClip($("c-fire"), "fire", t, 1.1 + t * .06, .5, .45); slam($("s1wm"), t, 0, .5, 1.5); rise($("s1k"), t, .75, .45, 50); }
+
+  // S2 wall
+  const a2 = sceneAlpha(t, CUT.s2, CUT.s3 - .1);
+  css($("s2"), { opacity: a2 });
+  if (a2 > 0) {
+    const lt = t - CUT.s2, p = eIO(prog(t, CUT.s2 - .1, CUT.s3));
+    css($("wall"), { transform: `translateZ(${lerp(-160, 120, p)}px) rotateX(${lerp(42, 26, eOut(prog(lt, 0, 1.4)))}deg) rotateZ(${lerp(-18, -10, p)}deg) translateY(${lerp(420, -300, p)}px)` });
+    wallCards.forEach((w, i) => { const ap = eExpo(prog(lt, i * .05, i * .05 + .5)); css(w.d, { transform: `translateZ(${(1 - ap) * 700 + (i % 2 ? 40 : 0)}px)`, opacity: ap }); drawClip(w.c, w.k, lt + w.off, 1.05); });
+    slam($("s2a"), t, CUT.s2 + .3, .45, 1.3); rise($("s2b"), t, CUT.s2 + .8, .45, 40);
+  }
+
+  // S3 phone
+  const a3 = sceneAlpha(t, CUT.s3, CUT.s4 - .1);
+  css($("s3"), { opacity: a3 });
+  if (a3 > 0) {
+    const s = CUT.s3, pin = eExpo(prog(t, s - .1, s + .8)), sway = eIO(prog(t, s + .4, CUT.s4));
+    css($("phone"), { transform: `translateY(${lerp(700, 0, pin)}px) scale(1.06) rotateX(${lerp(30, 10, pin) - sway * 4}deg) rotateY(${lerp(-65, -16, pin) + sway * 22}deg) rotateZ(${lerp(-8, 2, pin)}deg)` });
+    css($("glare"), { backgroundPosition: `${lerp(120, -40, prog(t, s, CUT.s4))}% 0` });
+    drawClip($("c-teras"), "teras", t - s);
+    const scroll = lerp(0, 150, eIO(prog(t, s + .7, s + 1.3)));
+    css($("app"), { transform: `translateY(${-scroll}px)` });
+    const tap = s + 1.8;
+    const fp = prog(t, tap - .35, tap), fo = 1 - prog(t, tap + .15, tap + .35);
+    const b = $("addbtn"), bx = b.offsetLeft + 32, by = b.offsetTop + 32;
+    css($("finger"), { opacity: Math.min(eOut(fp), fo), left: (bx - 60 + (1 - eOut(fp)) * 60) + "px", top: (by - scroll - 60 + (1 - eOut(fp)) * 90) + "px", transform: `scale(${t > tap - .05 && t < tap + .15 ? .8 : 1})` });
+    const tapped = t >= tap;
+    css($("addbtn"), { background: tapped ? "#c8a165" : "#1f3016", transform: `scale(${tapped ? 1 + .25 * Math.max(0, 1 - (t - tap) * 5) : 1})` });
+    $("addbtn").firstChild.textContent = tapped ? "✓" : "+";
+    const rp = prog(t, tap, tap + .5);
+    css($("ripple"), { opacity: rp > 0 && rp < 1 ? 1 - rp : 0, transform: `scale(${1 + rp * 2.6})` });
+    const cb = eBack(prog(t, tap + .1, tap + .45));
+    css($("cartbar"), { transform: `translateY(${(1 - cb) * 200}px)`, opacity: prog(t, tap + .1, tap + .25) });
+    slam($("s3wm"), t, s + .1, .45, 1.3); rise($("s3s"), t, s + .5, .45, 40);
+  }
+
+  // S4 logo prism: drops from above, then rolls down through the four platforms
+  const a4 = sceneAlpha(t, CUT.s4, CUT.s5 - .1);
+  css($("s4"), { opacity: a4 });
+  if (a4 > 0) {
+    const s = CUT.s4;
+    rise($("s4a"), t, s + .05, .4, -50);
+    const dp = prog(t, s + .1, s + .75), drop = eBounce(dp);
+    const k = prismTurn(t), orbit = Math.sin((t - s) * 1.1) * 13;
+    const punch = FLIPS.reduce((m, f) => Math.max(m, Math.sin(Math.PI * prog(t, f, f + .42))), 0);
+    css($("prism"), { opacity: prog(t, s + .1, s + .2),
+      transform: `translateY(${(1 - drop) * -1200}px) translateZ(${-60 - punch * 120}px) rotateY(${orbit}deg) rotateX(${-90 * k - (1 - eOut(dp)) * 28}deg)` });
+    css($("shadow"), { opacity: drop * (1 - punch * .4), transform: `scale(${lerp(.3, 1, drop) * (1 - punch * .15)}, 1)` });
+    faces.forEach((f, i) => {
+      f.style.opacity = Math.abs(k - i) < .999 || (i === 0 && k < .001) ? 1 : 0;   // only the faces in view
+      words[i].style.opacity = Math.abs(k - i) < .999 || (i === 0 && k < .001) ? 1 : 0;
+      const land = i === 0 ? s + .75 : FLIPS[i - 1] + .25;
+      f.querySelector(".sweep").style.backgroundPosition = `${lerp(140, -40, prog(t, land, land + .6))}% 0`;
+    });
+    css($("rollIn"), { opacity: prog(t, s + .55, s + .75), transform: `translateZ(-70px) rotateX(${-90 * k}deg)` });
+  }
+
+  // S5 closing: lit Mehir sign at night, slogan, platform logos, contact
+  const a5 = sceneAlpha(t, CUT.s5, 99);
+  css($("s5"), { opacity: a5 });
+  if (a5 > 0) {
+    const s = CUT.s5, lt = t - s;
+    drawClip($("c-sign"), "sign", lt, 1.08 + lt * .03, .6, .25);
+    slam($("s5a"), t, s + .2, .45, 1.3); rise($("s5b"), t, s + .95, .45, 40);
+    [...$("s5logos").children].forEach((el, i) => {
+      const p = eBack(prog(t, s + 1.0 + i * .12, s + 1.45 + i * .12));
+      css(el, { opacity: prog(t, s + 1.0 + i * .12, s + 1.1 + i * .12), transform: `perspective(800px) rotateX(${(1 - p) * -90}deg)`, transformOrigin: "50% 0%" });
+    });
+    rise($("s5tel"), t, s + 1.6, .45, 30); rise($("s5addr"), t, s + 1.8, .45, 30);
+  }
+
+  drawEmbers(t, Math.max(a1 * .9, a5 * .55));
+  drawGrain(t);
+  let fl = 0; for (const f of [CUT.s2, CUT.s4, CUT.s5]) fl = Math.max(fl, 1 - Math.abs(t - f) / .12);
+  $("flash").style.opacity = clamp(fl) * .5;
+};
+
+window.READY = false;
+Promise.all([...loads, document.fonts.ready]).then(() => {
+  [["t1", "ciger", 20], ["t2", "pirzolap", 60], ["t3", "kusleme", 52], ["t4", "sactava", 90]].forEach(([id, k, f]) => cover($(id).getContext("2d"), IMG[k][f], 256, 256, 1.2));
+  window.renderAt(0); window.READY = true;
+});
+</script>
+</body>
+</html>
